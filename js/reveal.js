@@ -18,12 +18,12 @@
         maxRadius: 140,
         rippleRadius: 200,
 
-        // Trail and fade settings
-        maxTrailPoints: 12,
+        // Trail and fade settings - reduced for mobile performance
+        maxTrailPoints: /Mobi|Android/i.test(navigator.userAgent) ? 6 : 12,
         fadeDuration: 0.08, // Slower fade = smoother
 
-        // Quality
-        canvasQuality: window.devicePixelRatio || 1,
+        // Quality - limit canvas resolution for mobile performance
+        canvasQuality: Math.min(window.devicePixelRatio || 1, 1.5),
         smoothingSteps: 3 // Interpolation smoothness
     };
 
@@ -57,7 +57,10 @@
         imagesLoaded: 0,
         instructionOverlay: null,
         animationFrame: null,
-        lastFrameTime: 0
+        lastFrameTime: 0,
+
+        // Performance: pause animation when idle
+        isIdle: false
     };
 
     // ========================================
@@ -190,6 +193,13 @@
     // ========================================
     function startRenderLoop() {
         function render(timestamp) {
+            // Performance optimization: Stop loop if idle
+            if (!state.isRevealing && state.trailPoints.length === 0 && state.ripples.length === 0) {
+                state.isIdle = true;
+                return; // Exit loop - will resume when interaction starts
+            }
+            state.isIdle = false;
+
             const deltaTime = timestamp - state.lastFrameTime;
             state.lastFrameTime = timestamp;
 
@@ -199,6 +209,15 @@
             state.animationFrame = requestAnimationFrame(render);
         }
         state.animationFrame = requestAnimationFrame(render);
+    }
+
+    // Resume loop when interaction starts (after being paused)
+    function resumeRenderLoop() {
+        if (state.isIdle) {
+            state.isIdle = false;
+            state.lastFrameTime = performance.now();
+            startRenderLoop();
+        }
     }
 
     function updateAnimation(deltaTime) {
@@ -399,49 +418,21 @@
     }
 
     function drawSmoothReveal(ctx, point, index) {
-        // Multi-layer gradient for silk-smooth edges
+        // Optimized single-layer gradient for better mobile performance
         const { x, y, alpha, radius } = point;
 
-        // Layer 1: Core reveal (strongest)
-        let gradient = ctx.createRadialGradient(
+        // Single optimized gradient (was 3 layers before)
+        const gradient = ctx.createRadialGradient(
             x, y, 0,
-            x, y, radius * 0.6
+            x, y, radius * 1.5
         );
-        gradient.addColorStop(0, `rgba(0, 0, 0, ${alpha * 0.9})`);
-        gradient.addColorStop(0.7, `rgba(0, 0, 0, ${alpha * 0.6})`);
+        gradient.addColorStop(0, `rgba(0, 0, 0, ${alpha})`);
+        gradient.addColorStop(0.5, `rgba(0, 0, 0, ${alpha * 0.5})`);
         gradient.addColorStop(1, `rgba(0, 0, 0, 0)`);
 
         ctx.fillStyle = gradient;
         ctx.beginPath();
-        ctx.arc(x, y, radius * 0.6, 0, Math.PI * 2);
-        ctx.fill();
-
-        // Layer 2: Soft mid-range
-        gradient = ctx.createRadialGradient(
-            x, y, radius * 0.5,
-            x, y, radius * 1.2
-        );
-        gradient.addColorStop(0, `rgba(0, 0, 0, ${alpha * 0.4})`);
-        gradient.addColorStop(0.5, `rgba(0, 0, 0, ${alpha * 0.2})`);
-        gradient.addColorStop(1, `rgba(0, 0, 0, 0)`);
-
-        ctx.fillStyle = gradient;
-        ctx.beginPath();
-        ctx.arc(x, y, radius * 1.2, 0, Math.PI * 2);
-        ctx.fill();
-
-        // Layer 3: Ultra-soft outer edge (feathering)
-        gradient = ctx.createRadialGradient(
-            x, y, radius * 1.0,
-            x, y, radius * 1.8
-        );
-        gradient.addColorStop(0, `rgba(0, 0, 0, ${alpha * 0.15})`);
-        gradient.addColorStop(0.6, `rgba(0, 0, 0, ${alpha * 0.05})`);
-        gradient.addColorStop(1, `rgba(0, 0, 0, 0)`);
-
-        ctx.fillStyle = gradient;
-        ctx.beginPath();
-        ctx.arc(x, y, radius * 1.8, 0, Math.PI * 2);
+        ctx.arc(x, y, radius * 1.5, 0, Math.PI * 2);
         ctx.fill();
     }
 
@@ -561,6 +552,7 @@
         e.stopImmediatePropagation();
 
         state.isRevealing = true;
+        resumeRenderLoop(); // Resume animation if paused
         hideInstruction();
 
         const touch = e.touches[0];
@@ -610,6 +602,7 @@
     // ========================================
     function handleMouseEnter(e) {
         state.isRevealing = true;
+        resumeRenderLoop(); // Resume animation if paused
         hideInstruction();
 
         const pos = getMousePosition(e);
@@ -622,6 +615,7 @@
     function handleMouseMove(e) {
         if (!state.isRevealing) {
             state.isRevealing = true;
+            resumeRenderLoop(); // Resume animation if paused
             hideInstruction();
         }
 

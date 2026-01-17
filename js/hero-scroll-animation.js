@@ -71,8 +71,8 @@
         // Intercept wheel events (mouse scroll)
         window.addEventListener('wheel', onWheel, { passive: false });
 
-        // Intercept touch events (mobile)
-        window.addEventListener('touchstart', onTouchStart, { passive: false });
+        // Intercept touch events (mobile) - touchstart is passive for better performance
+        window.addEventListener('touchstart', onTouchStart, { passive: true });
         window.addEventListener('touchmove', onTouchMove, { passive: false });
     }
 
@@ -109,6 +109,7 @@
     }
 
     function onTouchStart(e) {
+        // Don't preventDefault - let it be passive for better scroll performance
         if (e.touches.length > 0) {
             state.lastTouchY = e.touches[0].clientY;
         }
