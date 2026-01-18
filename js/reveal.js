@@ -13,17 +13,22 @@
         coverImage: '../images/cover-artistic.jpg',
         realImage: '../images/hero-photo.jpg',
 
-        // Smoothness settings
-        baseRadius: 100,
-        maxRadius: 140,
-        rippleRadius: 200,
+        // Smoothness settings - reduced for mobile
+        // Smoothness settings - reduced for mobile
+        baseRadius: /Mobi|Android/i.test(navigator.userAgent) ? 70 : 110, // Increased slightly for "strength"
+        maxRadius: /Mobi|Android/i.test(navigator.userAgent) ? 100 : 150,
+        rippleRadius: /Mobi|Android/i.test(navigator.userAgent) ? 130 : 220,
 
-        // Trail and fade settings - reduced for mobile performance
-        maxTrailPoints: /Mobi|Android/i.test(navigator.userAgent) ? 6 : 12,
-        fadeDuration: 0.08, // Slower fade = smoother
+        // Trail and fade settings - INCREASED SIGNIFICANTLY for "strength"
+        maxTrailPoints: /Mobi|Android/i.test(navigator.userAgent) ? 40 : 80, // Was 6/12 - now much longer trail
+        fadeDuration: 0.15, // Slower fade = persists longer
 
-        // Quality - limit canvas resolution for mobile performance
-        canvasQuality: Math.min(window.devicePixelRatio || 1, 1.5),
+        // Quality - balanced for mobile (1.5x max) vs quality (2x max for desktop)
+
+        // Quality - balanced for mobile (1.5x max) vs quality (2x max for desktop)
+        canvasQuality: /Mobi|Android/i.test(navigator.userAgent)
+            ? Math.min(window.devicePixelRatio || 1, 1.5)
+            : Math.min(window.devicePixelRatio || 1, 2),
         smoothingSteps: 3 // Interpolation smoothness
     };
 
@@ -54,6 +59,9 @@
         // Ripple effect on touch
         ripples: [],
 
+        // Sparkle particles
+        sparkles: [],
+
         imagesLoaded: 0,
         instructionOverlay: null,
         animationFrame: null,
@@ -62,6 +70,130 @@
         // Performance: pause animation when idle
         isIdle: false
     };
+
+    // ... (rest of the file) ...
+
+    function updateAnimation(deltaTime) {
+        // ... (existing update logic) ...
+
+        // Update ripples
+        state.ripples = state.ripples.map(ripple => {
+            ripple.age += deltaTime;
+            const progress = ripple.age / ripple.duration;
+
+            ripple.radius = ripple.startRadius + (ripple.endRadius - ripple.startRadius) * progress;
+            ripple.alpha = Math.max(0, 1 - Math.pow(progress, 0.8)); // Smooth fade
+
+            return ripple;
+        }).filter(ripple => ripple.alpha > 0.01);
+
+        // Update sparkles
+        state.sparkles = state.sparkles.map(sparkle => {
+            sparkle.x += sparkle.vx;
+            sparkle.y += sparkle.vy;
+            sparkle.alpha -= sparkle.decay;
+            sparkle.rotation += sparkle.rotSpeed;
+            return sparkle;
+        }).filter(sparkle => sparkle.alpha > 0.01);
+    }
+
+    // ... (rest of the file) ...
+
+    function drawScene() {
+        // ... (existing draw logic) ...
+
+        // STEP 2: Draw cover layer on top (with touch reveals creating holes)
+        // ...
+
+        if (state.trailPoints.length > 0 || state.ripples.length > 0) {
+            // ... (existing masking logic) ...
+
+            // Draw sparkles on top of everything
+            state.ctx.globalCompositeOperation = 'screen';
+            state.sparkles.forEach(sparkle => {
+                drawSparkle(state.ctx, sparkle);
+            });
+
+        } else {
+            // ...
+        }
+
+        // Restore context state
+        state.ctx.restore();
+    }
+
+    // ...
+
+    // ========================================
+    // SPARKLE EFFECT
+    // ========================================
+    function createSparkles(x, y) {
+        // Create 3-5 sparkles per event
+        const count = 3 + Math.floor(Math.random() * 3);
+
+        for (let i = 0; i < count; i++) {
+            const angle = Math.random() * Math.PI * 2;
+            const speed = 2 + Math.random() * 4;
+
+            state.sparkles.push({
+                x: x,
+                y: y,
+                vx: Math.cos(angle) * speed,
+                vy: Math.sin(angle) * speed,
+                size: 2 + Math.random() * 4,
+                alpha: 1.0,
+                decay: 0.02 + Math.random() * 0.03,
+                rotation: Math.random() * Math.PI,
+                rotSpeed: (Math.random() - 0.5) * 0.2,
+                color: Math.random() > 0.3 ? '#D4AF37' : '#FFFFFF' // Mostly Gold, some White
+            });
+        }
+    }
+
+    function drawSparkle(ctx, sparkle) {
+        ctx.save();
+        ctx.translate(sparkle.x, sparkle.y);
+        ctx.rotate(sparkle.rotation);
+        ctx.globalAlpha = sparkle.alpha;
+        ctx.fillStyle = sparkle.color;
+
+        // Draw a diamond shape (star)
+        ctx.beginPath();
+        ctx.moveTo(0, -sparkle.size);
+        ctx.lineTo(sparkle.size * 0.3, 0);
+        ctx.lineTo(0, sparkle.size);
+        ctx.lineTo(-sparkle.size * 0.3, 0);
+        ctx.closePath();
+        ctx.fill();
+
+        // Cross shine
+        ctx.beginPath();
+        ctx.moveTo(0, -sparkle.size * 1.5);
+        ctx.lineTo(0.5, 0);
+        ctx.lineTo(0, sparkle.size * 1.5);
+        ctx.lineTo(-0.5, 0);
+        ctx.fill();
+
+        ctx.beginPath();
+        ctx.moveTo(-sparkle.size * 1.5, 0);
+        ctx.lineTo(0, 0.5);
+        ctx.lineTo(sparkle.size * 1.5, 0);
+        ctx.lineTo(0, -0.5);
+        ctx.fill();
+
+        ctx.restore();
+    }
+
+    // ========================================
+    // RIPPLE EFFECT
+    // ========================================
+    function createRipple(x, y) {
+        // ... (existing)
+        state.ripples.push({ /* ... */ });
+
+        // Also trigger sparkles
+        createSparkles(x, y);
+    }
 
     // ========================================
     // INITIALIZATION
@@ -84,6 +216,9 @@
         setupEventListeners();
         preventPageZoom();
 
+        preventPageZoom();
+
+        // Removed auto-hide on scroll to keep "Touch to reveal" visible until interaction
         window.addEventListener('resize', debounce(handleResize, 250));
     }
 
@@ -109,6 +244,19 @@
 
         if (state.imagesLoaded === 2) {
             setupCanvas();
+
+            // Initial draw to ensure cover is visible
+            drawScene();
+
+            // Now reveal the hero background (it's behind the cover)
+            const heroBg = document.querySelector('.hero-background');
+            if (heroBg) {
+                // Small delay to ensure canvas paint is registered
+                requestAnimationFrame(() => {
+                    heroBg.classList.add('ready');
+                });
+            }
+
             startRenderLoop();
         }
     }
@@ -194,7 +342,7 @@
     function startRenderLoop() {
         function render(timestamp) {
             // Performance optimization: Stop loop if idle
-            if (!state.isRevealing && state.trailPoints.length === 0 && state.ripples.length === 0) {
+            if (!state.isRevealing && state.trailPoints.length === 0 && state.ripples.length === 0 && state.sparkles.length === 0) {
                 state.isIdle = true;
                 return; // Exit loop - will resume when interaction starts
             }
@@ -285,7 +433,7 @@
                 point.radius = CONFIG.baseRadius;
             } else {
                 // Exponential fade (smoother than linear)
-                const fadeProgress = point.age / 1000; // Convert to seconds
+                const fadeProgress = point.age / 2500; // Lasts 2.5 seconds now (was 0.5s)
                 point.alpha = Math.max(0, 1 - Math.pow(fadeProgress * 2, 1.5));
 
                 // Slight radius expansion as it fades
@@ -294,6 +442,15 @@
 
             return point;
         }).filter(point => point.alpha > 0.01);
+
+        // Update sparkles
+        state.sparkles = state.sparkles.map(sparkle => {
+            sparkle.x += sparkle.vx;
+            sparkle.y += sparkle.vy;
+            sparkle.alpha -= sparkle.decay;
+            sparkle.rotation += sparkle.rotSpeed;
+            return sparkle;
+        }).filter(sparkle => sparkle.alpha > 0.01);
 
         // Update ripples
         state.ripples = state.ripples.map(ripple => {
@@ -320,16 +477,16 @@
         // Clear main canvas
         state.ctx.clearRect(0, 0, width, height);
 
-        // STEP 1: Draw hero photo as the base layer
+        // STEP 1: ALWAYS draw hero photo as the base layer (this is what gets revealed)
         state.ctx.globalCompositeOperation = 'source-over';
         drawImageCover(state.ctx, state.realImg, width, height);
 
-        // STEP 2: Create cover layer with reveals on offscreen canvas
-        if (state.trailPoints.length > 0 || state.ripples.length > 0) {
-            // Save offscreen context state
-            state.offscreenCtx.save();
+        // STEP 2: Draw cover layer on top (with touch reveals creating holes)
+        // When user touches/hovers, the cover gets holes punched in it, revealing hero photo below
 
-            // Clear offscreen canvas
+        if (state.trailPoints.length > 0 || state.ripples.length > 0) {
+            // User is interacting - create masked cover with reveals
+            state.offscreenCtx.save();
             state.offscreenCtx.clearRect(0, 0, width, height);
 
             // Draw cover image on offscreen canvas
@@ -349,13 +506,11 @@
                 drawSmoothReveal(state.offscreenCtx, point, index);
             });
 
-            // Restore offscreen context
             state.offscreenCtx.restore();
 
-            // STEP 3: Composite the masked cover onto the main canvas
-            // CRITICAL FIX: Reset transform before drawing offscreen canvas to avoid double-scaling
+            // Composite the masked cover onto the main canvas
             state.ctx.save();
-            state.ctx.setTransform(1, 0, 0, 1, 0, 0); // Reset to identity matrix
+            state.ctx.setTransform(1, 0, 0, 1, 0, 0);
             state.ctx.globalCompositeOperation = 'source-over';
             state.ctx.drawImage(state.offscreenCanvas, 0, 0);
             state.ctx.restore();
@@ -364,10 +519,16 @@
             state.ctx.setTransform(1, 0, 0, 1, 0, 0);
             state.ctx.scale(CONFIG.canvasQuality, CONFIG.canvasQuality);
 
-            // STEP 4: Add glow effects on top using screen blend
+            // Add glow effects on top
             state.ctx.globalCompositeOperation = 'screen';
             state.trailPoints.forEach(point => {
                 drawGoldenGlow(point);
+            });
+
+            // Draw sparkles on top of everything
+            state.ctx.globalCompositeOperation = 'screen';
+            state.sparkles.forEach(sparkle => {
+                drawSparkle(state.ctx, sparkle);
             });
 
         } else {
@@ -639,6 +800,66 @@
     }
 
     // ========================================
+    // SPARKLE EFFECT
+    // ========================================
+    function createSparkles(x, y) {
+        // Create 3-5 sparkles per event
+        const count = 3 + Math.floor(Math.random() * 3);
+
+        for (let i = 0; i < count; i++) {
+            const angle = Math.random() * Math.PI * 2;
+            const speed = 2 + Math.random() * 4;
+
+            state.sparkles.push({
+                x: x,
+                y: y,
+                vx: Math.cos(angle) * speed,
+                vy: Math.sin(angle) * speed,
+                size: 2 + Math.random() * 4,
+                alpha: 1.0,
+                decay: 0.02 + Math.random() * 0.03,
+                rotation: Math.random() * Math.PI,
+                rotSpeed: (Math.random() - 0.5) * 0.2,
+                color: Math.random() > 0.3 ? '#D4AF37' : '#FFFFFF' // Mostly Gold, some White
+            });
+        }
+    }
+
+    function drawSparkle(ctx, sparkle) {
+        ctx.save();
+        ctx.translate(sparkle.x, sparkle.y);
+        ctx.rotate(sparkle.rotation);
+        ctx.globalAlpha = sparkle.alpha;
+        ctx.fillStyle = sparkle.color;
+
+        // Draw a diamond shape (star)
+        ctx.beginPath();
+        ctx.moveTo(0, -sparkle.size);
+        ctx.lineTo(sparkle.size * 0.3, 0);
+        ctx.lineTo(0, sparkle.size);
+        ctx.lineTo(-sparkle.size * 0.3, 0);
+        ctx.closePath();
+        ctx.fill();
+
+        // Cross shine
+        ctx.beginPath();
+        ctx.moveTo(0, -sparkle.size * 1.5);
+        ctx.lineTo(0.5, 0);
+        ctx.lineTo(0, sparkle.size * 1.5);
+        ctx.lineTo(-0.5, 0);
+        ctx.fill();
+
+        ctx.beginPath();
+        ctx.moveTo(-sparkle.size * 1.5, 0);
+        ctx.lineTo(0, 0.5);
+        ctx.lineTo(sparkle.size * 1.5, 0);
+        ctx.lineTo(0, -0.5);
+        ctx.fill();
+
+        ctx.restore();
+    }
+
+    // ========================================
     // RIPPLE EFFECT
     // ========================================
     function createRipple(x, y) {
@@ -652,6 +873,9 @@
             age: 0,
             duration: 800 // milliseconds
         });
+
+        // Also trigger sparkles
+        createSparkles(x, y);
     }
 
     // ========================================

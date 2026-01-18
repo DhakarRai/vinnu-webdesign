@@ -23,7 +23,8 @@ html {
 
 body {
     font-family: 'Noto Sans Telugu', 'Tiro Telugu', sans-serif;
-    background: linear-gradient(135deg, #FFF5EC 0%, #FFFEF9 50%, #FFF5EC 100%);
+    background-color: #FFF5EC;
+    /* Fallback */
     color: #4A4A4A;
     line-height: 1.7;
     overflow-x: hidden;
@@ -36,19 +37,94 @@ body {
     user-select: none;
 }
 
-/* Background decorative texture */
-body::before {
-    content: '';
+/* ========================================
+   PREMIUM 3D BACKGROUND
+   ======================================== */
+.ambient-background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: -1;
+    overflow: hidden;
+    background: radial-gradient(circle at 50% 50%, #fff9f0 0%, #fff0dc 100%);
+}
+
+.shape {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.6;
+    animation: float 20s infinite ease-in-out alternate;
+    will-change: transform, opacity;
+}
+
+.shape-1 {
+    top: -10%;
+    right: -10%;
+    width: 60vw;
+    height: 60vw;
+    background: radial-gradient(circle, rgba(255, 215, 0, 0.4) 0%, rgba(255, 165, 0, 0.1) 70%, transparent 100%);
+    animation-delay: 0s;
+}
+
+.shape-2 {
+    bottom: -20%;
+    left: -10%;
+    width: 70vw;
+    height: 70vw;
+    background: radial-gradient(circle, rgba(199, 21, 133, 0.3) 0%, rgba(255, 105, 180, 0.1) 70%, transparent 100%);
+    animation-delay: -5s;
+}
+
+.shape-3 {
+    top: 40%;
+    left: 40%;
+    width: 40vw;
+    height: 40vw;
+    background: radial-gradient(circle, rgba(0, 191, 255, 0.2) 0%, rgba(135, 206, 250, 0.1) 70%, transparent 100%);
+    animation-delay: -10s;
+    opacity: 0.4;
+}
+
+.shape-4 {
+    top: 10%;
+    left: 10%;
+    width: 30vw;
+    height: 30vw;
+    background: radial-gradient(circle, rgba(255, 223, 186, 0.6) 0%, rgba(255, 218, 185, 0.2) 70%, transparent 100%);
+    animation-delay: -15s;
+}
+
+.glass-overlay {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background-image:
-        radial-gradient(circle at 20% 30%, rgba(230, 230, 250, 0.15) 0%, transparent 50%),
-        radial-gradient(circle at 80% 70%, rgba(255, 215, 0, 0.08) 0%, transparent 50%);
-    pointer-events: none;
-    z-index: -1;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(100px);
+    /* Creates the soft fusion effect */
+    -webkit-backdrop-filter: blur(100px);
+}
+
+@keyframes float {
+    0% {
+        transform: translate(0, 0) rotate(0deg) scale(1);
+    }
+
+    33% {
+        transform: translate(30px, -50px) rotate(10deg) scale(1.1);
+    }
+
+    66% {
+        transform: translate(-20px, 20px) rotate(-5deg) scale(0.95);
+    }
+
+    100% {
+        transform: translate(0, 0) rotate(0deg) scale(1);
+    }
 }
 
 /* ========================================
@@ -204,6 +280,13 @@ section {
     border-radius: inherit;
     z-index: 1;
     /* Behind canvas */
+    opacity: 0;
+    /* Hidden initially to prevent flash */
+    transition: opacity 0.5s ease-in;
+}
+
+.hero-background.ready {
+    opacity: 1;
 }
 
 #revealCanvas {
@@ -309,29 +392,20 @@ section {
 }
 
 .signature-text {
-    font-size: clamp(48px, 14vw, 100px);
-    font-weight: 700;
-    color: #39FF14;
-    /* Bright vibrant lime green - natural and eye-catching */
-    /* No comment needed */
-    text-shadow:
-        0 0 40px rgba(57, 255, 20, 1),
-        0 0 80px rgba(57, 255, 20, 0.8),
-        0 0 120px rgba(57, 255, 20, 0.6),
-        0 4px 15px rgba(0, 0, 0, 0.7),
-        3px 3px 0 rgba(0, 0, 0, 0.4),
-        -1px -1px 0 rgba(0, 0, 0, 0.2);
-    font-style: italic;
-    letter-spacing: 3px;
-    /* Handwritten/signature style */
-    font-family: 'Tiro Telugu', cursive, 'Noto Sans Telugu', sans-serif;
-    transform: rotate(-10deg) scale(1.2);
-    /* Slightly larger and more rotated */
+    font-size: clamp(64px, 19vw, 120px);
+    font-weight: 400;
+    color: #fddc00;
+    text-shadow: 0 4px 12px rgb(0 0 0), 0 0 20px rgb(255 194 4);
+    font-family: 'Great Vibes', cursive;
+    letter-spacing: 6px;
+    transform: rotate(-8deg) scale(1.1);
     white-space: nowrap;
-    filter: drop-shadow(0 10px 25px rgba(57, 255, 20, 0.5));
-    /* Allow overflow outside parent */
     position: relative;
     z-index: 10;
+    text-align: center;
+    width: auto;
+    margin-top: 0;
+    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
 }
 
 .instruction-text-en {
@@ -342,116 +416,568 @@ section {
 }
 
 /* ========================================
-   EVENT TITLE SECTION
+   ANIMATED SPLIT TITLE HEADINGS
    ======================================== */
-.title-section {
-    text-align: center;
-    padding: clamp(40px, 12vw, 80px) clamp(20px, 6vw, 50px);
-    position: relative;
-    background: linear-gradient(135deg,
-            rgba(230, 230, 250, 0.3) 0%,
-            rgba(255, 245, 236, 0.5) 100%);
-    border-radius: clamp(16px, 5vw, 32px);
-    margin: clamp(20px, 6vw, 40px) clamp(12px, 4vw, 24px);
-    box-shadow:
-        0 4px 16px rgba(212, 175, 55, 0.15),
-        inset 0 2px 4px rgba(255, 255, 255, 0.6);
-}
-
-.ornamental-corner {
+.animated-title-container {
     position: absolute;
-    width: clamp(40px, 12vw, 70px);
-    height: clamp(40px, 12vw, 70px);
-    border: 2px solid #D4AF37;
-    opacity: 0.7;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 3;
+    /* Above canvas but below instruction overlay */
 }
 
-.ornamental-corner.top-left {
-    top: -2px;
-    left: -2px;
-    border-right: none;
-    border-bottom: none;
-    border-radius: clamp(8px, 3vw, 16px) 0 0 0;
+.animated-title-top {
+    position: absolute;
+    top: clamp(-12px, -3vw, -10px);
+    /* Position very close above the image */
+    left: 0;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: visible;
+    /* Allow text to overflow container */
+    /* Initial state - hidden and off screen to the left */
+    opacity: 0;
+    transform: translateX(-120%);
+    transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1),
+        opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    will-change: transform, opacity;
 }
 
-.ornamental-corner.top-right {
-    top: -2px;
-    right: -2px;
-    border-left: none;
-    border-bottom: none;
-    border-radius: 0 clamp(8px, 3vw, 16px) 0 0;
+.animated-title-bottom {
+    position: absolute;
+    bottom: clamp(-12px, -3vw, -10px);
+    /* Position very close below the image */
+    left: 0;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: visible;
+    /* Initial state - hidden and off screen to the right */
+    opacity: 0;
+    transform: translateX(120%);
+    transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1),
+        opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    will-change: transform, opacity;
 }
 
-.ornamental-corner.bottom-left {
-    bottom: -2px;
-    left: -2px;
-    border-right: none;
-    border-top: none;
-    border-radius: 0 0 0 clamp(8px, 3vw, 16px);
-}
-
-.ornamental-corner.bottom-right {
-    bottom: -2px;
-    right: -2px;
-    border-left: none;
-    border-top: none;
-    border-radius: 0 0 clamp(8px, 3vw, 16px) 0;
-}
-
-.event-title {
-    font-size: clamp(32px, 10vw, 56px);
+.animated-title-top .title-text,
+.animated-title-bottom .title-text {
+    font-size: clamp(20px, 6vw, 38px);
     font-weight: 700;
-    color: #C71585;
-    margin-bottom: clamp(8px, 3vw, 16px);
+    font-family: 'Tiro Telugu', 'Georgia', serif;
+    color: #f5d76e;
+    /* Rich gold text */
+    background: linear-gradient(135deg,
+            #6b1f3d 0%,
+            #8b2e4d 50%,
+            #6b1f3d 100%);
+    /* Deep maroon/burgundy gradient */
+    padding: clamp(8px, 2.5vw, 14px) clamp(28px, 8vw, 50px);
+    border-radius: clamp(4px, 1vw, 8px);
+    /* Unique banner shape with angled edges */
+    clip-path: polygon(clamp(12px, 3vw, 20px) 0%,
+            /* Top left angle */
+            calc(100% - clamp(12px, 3vw, 20px)) 0%,
+            /* Top right angle */
+            100% 50%,
+            /* Right point */
+            calc(100% - clamp(12px, 3vw, 20px)) 100%,
+            /* Bottom right angle */
+            clamp(12px, 3vw, 20px) 100%,
+            /* Bottom left angle */
+            0% 50%
+            /* Left point */
+        );
+    box-shadow:
+        0 6px 20px rgba(107, 31, 61, 0.4),
+        0 3px 10px rgba(107, 31, 61, 0.3),
+        inset 0 1px 0 rgba(255, 215, 110, 0.2),
+        inset 0 -1px 0 rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(245, 215, 110, 0.3);
     text-shadow:
-        0 2px 4px rgba(199, 21, 133, 0.2),
-        0 4px 16px rgba(199, 21, 133, 0.15);
-    letter-spacing: 0.5px;
+        0 2px 4px rgba(0, 0, 0, 0.5),
+        0 1px 0 rgba(255, 215, 110, 0.4),
+        0 0 20px rgba(245, 215, 110, 0.3);
+    letter-spacing: clamp(1.5px, 0.8vw, 3px);
+    margin: 0;
+    white-space: nowrap;
+    position: relative;
+    z-index: 10;
+    /* Subtle animation on the strip itself */
+    transition: all 0.3s ease;
 }
 
-.event-subtitle {
-    font-size: clamp(16px, 4.5vw, 22px);
-    color: #666;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    font-style: italic;
+/* Add decorative shine effect */
+.animated-title-top .title-text::before,
+.animated-title-bottom .title-text::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 50%;
+    background: linear-gradient(180deg,
+            rgba(255, 255, 255, 0.15) 0%,
+            transparent 100%);
+    pointer-events: none;
+    border-radius: clamp(4px, 1vw, 8px) clamp(4px, 1vw, 8px) 0 0;
+}
+
+/* Animation states - will be controlled by JavaScript */
+.animated-title-top.active {
+    transform: translateX(0);
+}
+
+.animated-title-bottom.active {
+    transform: translateX(0);
+}
+
+/* Responsive adjustments for smaller screens */
+@media (max-width: 480px) {
+    .animated-title-top {
+        top: clamp(-10px, -2vw, -8px);
+    }
+
+    .animated-title-bottom {
+        bottom: clamp(-10px, -2vw, -8px);
+    }
+
+    .animated-title-top .title-text,
+    .animated-title-bottom .title-text {
+        white-space: normal;
+        /* Allow wrapping on very small screens */
+        text-align: center;
+        line-height: 1.2;
+    }
+}
+
+
+
+/* ========================================
+   CHILD NAME SECTION - PREMIUM REDESIGN
+   ======================================== */
+.child-section {
+    text-align: center;
+    padding: clamp(60px, 15vw, 100px) clamp(16px, 5vw, 40px);
+    position: relative;
+    background: radial-gradient(circle at center, rgba(255, 250, 240, 0.8) 0%, rgba(255, 245, 236, 0.4) 70%, transparent 100%);
+    overflow: hidden;
+}
+
+.names-container {
+    position: relative;
+    max-width: 800px;
+    margin: 0 auto;
+    perspective: 1000px;
+    /* Enable 3D space */
+}
+
+/* Prefix Styling */
+.prefix-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    margin-bottom: clamp(32px, 8vw, 50px);
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeInUp 1s ease-out forwards 0.5s;
+}
+
+.child-prefix-text {
+    font-size: clamp(20px, 5vw, 28px);
+    color: #8B4513;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    position: relative;
+}
+
+.decorative-line {
+    height: 1px;
+    width: 60px;
+    background: linear-gradient(90deg, transparent, #D4AF37, transparent);
+}
+
+/* Premium Name Card */
+.name-card {
+    position: relative;
+    padding: clamp(24px, 6vw, 40px);
+    margin: 0 auto clamp(24px, 6vw, 40px);
+    background: rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(12px);
+    border-radius: 20px;
+    border: 1px solid rgba(255, 215, 0, 0.3);
+    box-shadow:
+        0 10px 30px rgba(212, 175, 55, 0.15),
+        inset 0 0 20px rgba(255, 255, 255, 0.8);
+    transform-style: preserve-3d;
+    transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1), box-shadow 0.6s ease;
+    cursor: default;
+    opacity: 0;
+    /* Updated via JS/Animation */
+    transform: translateY(40px) scale(0.9);
+}
+
+.name-card.card-visible {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    animation: floatCard 6s ease-in-out infinite alternate;
+}
+
+.name-card:hover {
+    transform: translateY(-5px) scale(1.02);
+    box-shadow:
+        0 20px 40px rgba(212, 175, 55, 0.25),
+        0 0 15px rgba(255, 105, 180, 0.2);
+}
+
+.child-name {
+    font-size: clamp(32px, 8vw, 64px);
+    font-weight: 700;
+    line-height: 1.3;
+    margin: 0;
+}
+
+/* Gradient Text Effect */
+.gradient-text {
+    background: linear-gradient(135deg, #C71585 0%, #FF1493 50%, #D4AF37 100%);
+    background-size: 200% auto;
+    color: #C71585;
+    /* Fallback color */
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: shineText 5s linear infinite;
+    display: block;
+    /* Ensure block level for gradient to work across line */
+}
+
+/* Removed problematic highlight-name class to prevent text clipping issues */
+
+@keyframes shineText {
+    to {
+        background-position: 200% center;
+    }
+}
+
+@keyframes floatCard {
+    0% {
+        transform: translateY(0);
+    }
+
+    100% {
+        transform: translateY(-10px);
+    }
+}
+
+/* Card Glow Effect */
+.card-glow {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 120%;
+    height: 120%;
+    background: radial-gradient(circle, rgba(255, 215, 0, 0.15) 0%, transparent 60%);
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+}
+
+.name-card:hover .card-glow {
+    opacity: 1;
+}
+
+/* Flower Decor */
+.flower-decor {
+    position: absolute;
+    font-size: 24px;
+    color: #D4AF37;
+    opacity: 0.6;
+    animation: spinSlow 10s linear infinite;
+}
+
+.flower-decor.top-left {
+    top: 10px;
+    left: 10px;
+}
+
+.flower-decor.bottom-right {
+    bottom: 10px;
+    right: 10px;
+}
+
+@keyframes spinSlow {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Sparkles Container */
+.particles-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: -1;
+}
+
+.particle {
+    position: absolute;
+    background: white;
+    border-radius: 50%;
+    opacity: 0;
+    animation: riseAndFade 4s infinite linear;
+}
+
+.p1 {
+    width: 4px;
+    height: 4px;
+    left: 20%;
+    animation-duration: 5s;
+    animation-delay: 0s;
+    background: #FFD700;
+}
+
+.p2 {
+    width: 6px;
+    height: 6px;
+    left: 80%;
+    animation-duration: 7s;
+    animation-delay: 2s;
+    background: #FF69B4;
+}
+
+.p3 {
+    width: 3px;
+    height: 3px;
+    left: 50%;
+    animation-duration: 6s;
+    animation-delay: 1s;
+    background: #87CEEB;
+}
+
+.p4 {
+    width: 5px;
+    height: 5px;
+    left: 30%;
+    animation-duration: 8s;
+    animation-delay: 3s;
+    background: #FFA500;
+}
+
+@keyframes riseAndFade {
+    0% {
+        transform: translateY(100px) scale(0);
+        opacity: 0;
+    }
+
+    50% {
+        opacity: 0.8;
+    }
+
+    100% {
+        transform: translateY(-100px) scale(1);
+        opacity: 0;
+    }
+}
+
+.divider-ornamental {
+    width: clamp(150px, 40vw, 250px);
+    height: 3px;
+    background: linear-gradient(90deg, transparent, #FF1493, #D4AF37, #FF1493, transparent);
+    margin: 40px auto 0;
+    border-radius: 100%;
     opacity: 0.8;
 }
 
 /* ========================================
-   CHILD NAME SECTION
+   SURNAME SPLIT ANIMATION
    ======================================== */
-.child-section {
-    text-align: center;
-    padding: clamp(32px, 10vw, 60px) clamp(16px, 5vw, 40px);
+.split-animation-wrapper {
+    position: relative;
+    width: 100%;
+    min-height: 300px;
+    /* Ensure space for animation */
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
-.child-prefix {
-    font-size: clamp(18px, 5vw, 26px);
-    color: #666;
-    margin-bottom: clamp(12px, 4vw, 20px);
-    font-weight: 500;
+/* Initial Surname Card */
+.surname-card {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(16px);
+    padding: clamp(30px, 8vw, 50px) clamp(50px, 10vw, 80px);
+    border-radius: 20px;
+    border: 2px solid rgba(255, 215, 0, 0.6);
+    box-shadow: 0 0 30px rgba(255, 215, 0, 0.4);
+    z-index: 10;
+    transition: all 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55);
 }
 
-.child-name {
-    font-size: clamp(36px, 11vw, 64px);
-    font-weight: 700;
-    background: linear-gradient(135deg, #C71585 0%, #D4AF37 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    margin-bottom: clamp(20px, 6vw, 40px);
-    text-shadow: 0 4px 12px rgba(199, 21, 133, 0.2);
-    filter: drop-shadow(0 2px 8px rgba(212, 175, 55, 0.3));
+.surname-text {
+    font-size: clamp(40px, 10vw, 72px);
+    font-weight: 800;
+    margin: 0;
+    white-space: nowrap;
 }
 
-.divider-simple {
-    width: clamp(100px, 30vw, 180px);
-    height: 2px;
-    background: linear-gradient(90deg,
-            transparent 0%,
-            #D4AF37 50%,
-            transparent 100%);
-    margin: 0 auto;
+/* INITIAL STACKED STATE (Default) - Tight deck */
+/* Card 1 (Top) */
+.detail-card.card-1 {
+    z-index: 10;
+    transform: translateY(0) scale(1);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+}
+
+/* Card 2 (Middle) */
+.detail-card.card-2 {
+    z-index: 9;
+    transform: translateY(12px) scale(0.96);
+    /* Just peeking */
+    opacity: 1;
+}
+
+/* Card 3 (Bottom) */
+.detail-card.card-3 {
+    z-index: 8;
+    transform: translateY(24px) scale(0.92);
+    /* Just peeking */
+    opacity: 1;
+}
+
+
+/* ACTIVE / SPLIT STATE (Triggered after 1s) */
+.details-stack-wrapper.details-active {
+    padding-bottom: 20px;
+}
+
+.details-stack-wrapper.details-active .detail-card.card-1 {
+    transform: translateY(-130px) scale(1);
+    /* Tighter split (was 170) */
+}
+
+.details-stack-wrapper.details-active .detail-card.card-2 {
+    transform: translateY(0) scale(1);
+    z-index: 9;
+    /* Ensure middle card is visible */
+}
+
+.details-stack-wrapper.details-active .detail-card.card-3 {
+    transform: translateY(130px) scale(1);
+    /* Tighter split (was 170) */
+}
+
+/* Mobile Adjustments for translation distances */
+@media (max-width: 768px) {
+    .details-stack-wrapper {
+        min-height: 560px;
+        /* Increased to prevent overlap */
+        padding-bottom: 40px;
+        /* Buffer */
+    }
+
+    /* On mobile, cards are taller, so we need more separation */
+    .details-stack-wrapper.details-active .detail-card.card-1 {
+        transform: translateY(-130px) scale(1);
+        /* Consistent tight split */
+    }
+
+    .details-stack-wrapper.details-active .detail-card.card-3 {
+        transform: translateY(130px) scale(1);
+        /* Consistent tight split */
+    }
+}
+
+/* Final Cards Container */
+.final-cards {
+    width: 100%;
+    opacity: 0;
+    /* Hidden initially */
+    transform: scale(0.8);
+    transition: all 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+}
+
+/* TRIGGERED STATE: When 'split-active' is added via JS */
+
+.split-animation-wrapper.split-active .surname-card {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(2);
+    /* Explode outwards */
+    pointer-events: none;
+}
+
+.split-animation-wrapper.split-active .final-cards {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.split-animation-wrapper.split-active .final-cards .name-card {
+    animation: bounceIn 1s cubic-bezier(0.215, 0.610, 0.355, 1.000) forwards;
+}
+
+@keyframes bounceIn {
+    0% {
+        opacity: 0;
+        transform: scale3d(0.3, 0.3, 0.3);
+    }
+
+    20% {
+        transform: scale3d(1.1, 1.1, 1.1);
+    }
+
+    40% {
+        transform: scale3d(0.9, 0.9, 0.9);
+    }
+
+    60% {
+        opacity: 1;
+        transform: scale3d(1.03, 1.03, 1.03);
+    }
+
+    80% {
+        transform: scale3d(0.97, 0.97, 0.97);
+    }
+
+    100% {
+        opacity: 1;
+        transform: scale3d(1, 1, 1);
+    }
+}
+
+.delay-200 {
+    animation-delay: 0.2s;
+}
+
+/* Mobile Optimization */
+@media (max-width: 480px) {
+    .mobile-break {
+        display: block;
+        content: "";
+        margin-top: 5px;
+    }
+
+    .name-card {
+        padding: 20px 10px;
+        width: 95%;
+    }
 }
 
 /* ========================================
@@ -546,107 +1072,421 @@ section {
 /* ========================================
    INVITATION MESSAGE SECTION
    ======================================== */
+/* ========================================
+   INVITATION MESSAGE SECTION - PREMIUM REDESIGN
+   ======================================== */
 .message-section {
-    padding: clamp(40px, 12vw, 80px) clamp(20px, 6vw, 50px);
+    padding: clamp(60px, 15vw, 100px) clamp(20px, 6vw, 50px);
+    display: flex;
+    justify-content: center;
+    perspective: 1000px;
 }
 
 .message-box {
-    background: linear-gradient(135deg,
-            rgba(255, 255, 255, 0.8) 0%,
-            rgba(230, 230, 250, 0.6) 100%);
-    backdrop-filter: blur(10px);
-    border-radius: clamp(16px, 5vw, 32px);
-    padding: clamp(32px, 10vw, 60px) clamp(24px, 7vw, 48px);
+    /* Premium Deep Maroon/Burgundy Gradient */
+    background: linear-gradient(135deg, #580829 0%, #8b1c4b 50%, #580829 100%);
+    background-size: 200% auto;
+    animation: gradientShift 8s ease infinite;
+
+    /* Unique Leaf Shape */
+    border-radius: 60px 0 60px 0;
+
+    padding: clamp(40px, 12vw, 70px) clamp(30px, 8vw, 60px);
     position: relative;
+    max-width: 700px;
+    width: 100%;
+
+    /* Premium Shadows & Glow */
     box-shadow:
-        0 8px 24px rgba(0, 0, 0, 0.1),
-        inset 0 2px 4px rgba(255, 255, 255, 0.7);
-    border: 1px solid rgba(212, 175, 55, 0.3);
+        0 20px 50px rgba(88, 8, 41, 0.4),
+        0 10px 20px rgba(0, 0, 0, 0.2),
+        inset 0 0 0 1px rgba(255, 215, 0, 0.3),
+        inset 0 0 30px rgba(255, 20, 147, 0.2);
+
+    border: 1px solid rgba(255, 215, 0, 0.4);
+
+    /* Floating Animation */
+    transform-origin: center;
+    animation: floatMessage 6s ease-in-out infinite;
+}
+
+/* Subtle texture overlay */
+.message-box::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: 60px 0 60px 0;
+    background-image: url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.05' fill-rule='evenodd'%3E%3Ccircle cx='3' cy='3' r='3'/%3E%3Ccircle cx='13' cy='13' r='3'/%3E%3C/g%3E%3C/svg%3E");
+    opacity: 0.3;
+    pointer-events: none;
 }
 
 .quote-mark {
-    font-size: clamp(48px, 15vw, 80px);
+    font-size: clamp(60px, 18vw, 100px);
     line-height: 1;
-    color: #D4AF37;
-    opacity: 0.4;
-    font-family: Georgia, serif;
+    color: #FFD700;
+    /* Gold */
+    opacity: 0.2;
+    font-family: 'Great Vibes', cursive;
+    /* More decorative font */
     position: absolute;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
 }
 
 .quote-mark.top {
-    top: clamp(8px, 3vw, 16px);
-    left: clamp(12px, 4vw, 24px);
+    top: 20px;
+    left: 20px;
+    animation: pulseQuote 4s ease-in-out infinite;
 }
 
 .quote-mark.bottom {
-    bottom: clamp(8px, 3vw, 16px);
-    right: clamp(12px, 4vw, 24px);
+    bottom: 20px;
+    right: 20px;
     transform: rotate(180deg);
+    animation: pulseQuote 4s ease-in-out infinite 2s;
+    /* Delayed */
 }
 
 .message-text {
-    font-size: clamp(18px, 5.5vw, 28px);
+    font-size: clamp(22px, 6vw, 32px);
     line-height: 1.8;
-    color: #4A4A4A;
+    color: #FFF5EC;
+    /* Creamy White text for contrast on maroon */
     text-align: center;
     font-weight: 500;
     position: relative;
-    z-index: 1;
+    z-index: 2;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
+
+/* Highlighted words within message if needed */
+.message-text strong {
+    color: #FFD700;
+    font-weight: 700;
+}
+
+@keyframes floatMessage {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-15px);
+    }
+}
+
+@keyframes pulseQuote {
+
+    0%,
+    100% {
+        transform: scale(1);
+        opacity: 0.2;
+    }
+
+    50% {
+        transform: scale(1.1);
+        opacity: 0.4;
+    }
+}
+
+@keyframes gradientShift {
+    0% {
+        background-position: 0% 50%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
+
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
 
 /* ========================================
    HOSTS SECTION
    ======================================== */
+/* ========================================
+   HOSTS SECTION - ROYAL PARCHMENT REDESIGN
+   ======================================== */
 .hosts-section {
+    padding: clamp(40px, 10vw, 80px) clamp(16px, 5vw, 40px);
+    display: flex;
+    justify-content: center;
+}
+
+.hosts-card {
+    position: relative;
+    width: 100%;
+    max-width: 600px;
+    background: radial-gradient(circle at center, #fffdf5 0%, #faeec7 100%);
+    border: 1px solid rgba(212, 175, 55, 0.5);
+    padding: clamp(40px, 10vw, 60px) clamp(24px, 6vw, 40px);
     text-align: center;
-    padding: clamp(32px, 10vw, 60px) clamp(16px, 5vw, 40px);
+    box-shadow:
+        0 10px 40px rgba(139, 69, 19, 0.15),
+        inset 0 0 60px rgba(212, 175, 55, 0.1);
+    /* Unique "Cut Corner" shape using clip-path or border-image is complex, 
+       using visual corners instead for better compatibility */
+}
+
+/* Decorative Gold Corners */
+.decorative-corner {
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    border: 3px solid #D4AF37;
+    transition: all 0.3s ease;
+}
+
+.top-left {
+    top: 10px;
+    left: 10px;
+    border-right: none;
+    border-bottom: none;
+}
+
+.top-right {
+    top: 10px;
+    right: 10px;
+    border-left: none;
+    border-bottom: none;
+}
+
+.bottom-left {
+    bottom: 10px;
+    left: 10px;
+    border-right: none;
+    border-top: none;
+}
+
+.bottom-right {
+    bottom: 10px;
+    right: 10px;
+    border-left: none;
+    border-top: none;
+}
+
+.hosts-card:hover .decorative-corner {
+    width: 50px;
+    height: 50px;
+    border-color: #FFD700;
 }
 
 .hosts-label {
-    font-size: clamp(16px, 4.5vw, 22px);
-    color: #888;
-    margin-bottom: clamp(16px, 5vw, 28px);
-    font-weight: 500;
+    font-size: clamp(18px, 5vw, 24px);
+    color: #8B4513;
+    /* SaddleBrown */
+    margin-bottom: clamp(16px, 5vw, 24px);
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    position: relative;
+    display: inline-block;
+}
+
+.hosts-label::after {
+    content: '';
+    display: block;
+    width: 40%;
+    height: 2px;
+    background: #D4AF37;
+    margin: 4px auto 0;
 }
 
 .hosts-names {
-    margin-bottom: clamp(24px, 7vw, 40px);
+    margin-bottom: clamp(24px, 7vw, 32px);
 }
 
-.host-name {
-    font-size: clamp(20px, 6vw, 32px);
-    color: #4A4A4A;
-    font-weight: 600;
-    margin: clamp(8px, 3vw, 12px) 0;
+.host-name-main {
+    font-size: clamp(28px, 8vw, 46px);
+    color: #4A0404;
+    /* Deep Burgundyish Brown */
+    font-weight: 700;
+    margin: 0;
+    font-family: 'Tiro Telugu', serif;
+    background: linear-gradient(to right, #8B4513, #4A0404, #8B4513);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 2px 2px rgba(255, 255, 255, 0.8));
 }
+
+/* Royal Divider */
+.divider-royal {
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #D4AF37, transparent);
+    width: 80%;
+    margin: 24px auto;
+    position: relative;
+    opacity: 0.6;
+}
+
+.divider-royal::before {
+    content: '❖';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #fffdf5;
+    /* Match card bg */
+    padding: 0 10px;
+    color: #DAA520;
+    font-size: 14px;
+}
+
+/* Lunch Box */
+.lunch-details-box {
+    padding: 16px;
+    border: 1px dashed rgba(139, 69, 19, 0.3);
+    border-radius: 8px;
+    display: inline-block;
+    min-width: 200px;
+    background: rgba(255, 255, 255, 0.4);
+}
+
+.lunch-title {
+    font-size: clamp(20px, 6vw, 24px);
+    color: #C71585;
+    /* MediumVioletRed */
+    margin-bottom: 4px;
+    font-weight: 700;
+}
+
+.lunch-time {
+    font-size: 18px;
+    color: #555;
+    font-family: 'Great Vibes', cursive;
+}
+
+/* Extended Family Box */
+.extended-family-box {
+    padding: 24px;
+    background: rgba(255, 255, 255, 0.6);
+    border-radius: 12px;
+    border: 1px solid rgba(255, 228, 196, 0.5);
+    margin-top: 20px;
+}
+
+.extended-family-text {
+    font-size: clamp(16px, 4.5vw, 20px);
+    line-height: 2;
+    color: #5a3e36;
+    margin-bottom: 24px;
+    font-weight: 500;
+}
+
+.regards-text {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    color: #8B4513;
+    font-size: 18px;
+}
+
+.regards-line {
+    height: 1px;
+    width: 30px;
+    background: #D4AF37;
+}
+
 
 /* ========================================
    BLESSING SECTION
    ======================================== */
+/* ========================================
+   BLESSING SECTION - DIVINE AURA REDESIGN
+   ======================================== */
 .blessing-section {
+    padding: clamp(60px, 15vw, 100px) clamp(20px, 5vw, 40px);
+    display: flex;
+    justify-content: center;
+    overflow: hidden;
+    /* Contain rays */
+}
+
+.blessing-container {
+    position: relative;
+    width: 100%;
+    max-width: 500px;
+    padding: clamp(40px, 10vw, 60px) clamp(20px, 5vw, 40px);
     text-align: center;
-    padding: clamp(40px, 12vw, 80px) clamp(20px, 6vw, 50px);
-    background: linear-gradient(135deg,
-            rgba(255, 245, 236, 0.5) 0%,
-            rgba(230, 230, 250, 0.3) 100%);
-    border-radius: clamp(16px, 5vw, 32px);
-    margin: clamp(20px, 6vw, 40px) clamp(12px, 4vw, 24px);
+    border-radius: 50% 50% 20% 20% / 40% 40% 20% 20%;
+    /* Dome shape */
+
+    /* Divine Glassmorphism */
+    background: radial-gradient(circle at 50% 0%, rgba(255, 253, 230, 0.9) 0%, rgba(255, 248, 220, 0.7) 100%);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 215, 0, 0.4);
+    box-shadow:
+        0 20px 60px rgba(255, 140, 0, 0.2),
+        /* Saffron glow */
+        inset 0 0 40px rgba(255, 255, 255, 0.8);
+
+    overflow: hidden;
+    /* Contain rays */
+    animation: floatingAura 6s ease-in-out infinite;
+}
+
+/* Rays Animation */
+.divine-rays {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 150%;
+    height: 150%;
+    background: repeating-conic-gradient(from 0deg,
+            rgba(255, 215, 0, 0.05) 0deg 10deg,
+            transparent 10deg 20deg);
+    z-index: -1;
+    border-radius: 50%;
+    animation: rotateRays 60s linear infinite;
+    pointer-events: none;
 }
 
 .blessing-text {
-    font-size: clamp(18px, 5.5vw, 28px);
+    font-size: clamp(20px, 6vw, 30px);
     line-height: 1.8;
-    color: #4A4A4A;
+    color: #8B4513;
     font-weight: 500;
     margin-bottom: clamp(24px, 7vw, 40px);
+    position: relative;
+    z-index: 2;
+}
+
+.highlight-blessing {
+    color: #d35400;
+    /* Deep Saffron */
+    font-weight: 700;
+    font-size: 1.1em;
+    text-shadow: 0 0 15px rgba(255, 165, 0, 0.6);
 }
 
 .ornamental-flower {
-    width: clamp(60px, 18vw, 100px);
-    height: clamp(60px, 18vw, 100px);
-    margin: 0 auto;
-    filter: drop-shadow(0 4px 12px rgba(212, 175, 55, 0.3));
+    width: clamp(80px, 20vw, 120px);
+    height: clamp(80px, 20vw, 120px);
+    margin: 0 auto clamp(20px, 5vw, 30px);
+    filter: drop-shadow(0 0 20px rgba(255, 215, 0, 0.6));
     animation: gentleRotate 20s linear infinite;
+    position: relative;
+    z-index: 2;
+}
+
+.namaste-text {
+    font-size: clamp(18px, 5vw, 24px);
+    color: #d35400;
+    font-weight: 600;
+    margin-top: 10px;
+    letter-spacing: 1px;
+    opacity: 0.9;
 }
 
 @keyframes gentleRotate {
@@ -659,22 +1499,111 @@ section {
     }
 }
 
+@keyframes rotateRays {
+    from {
+        transform: translate(-50%, -50%) rotate(0deg);
+    }
+
+    to {
+        transform: translate(-50%, -50%) rotate(360deg);
+    }
+}
+
+@keyframes floatingAura {
+
+    0%,
+    100% {
+        transform: translateY(0);
+        box-shadow: 0 20px 60px rgba(255, 140, 0, 0.2), inset 0 0 40px rgba(255, 255, 255, 0.8);
+    }
+
+    50% {
+        transform: translateY(-10px);
+        box-shadow: 0 30px 80px rgba(255, 140, 0, 0.3), inset 0 0 50px rgba(255, 255, 255, 0.9);
+    }
+}
+
 /* ========================================
-   FOOTER
+   FOOTER - REDESIGN
    ======================================== */
 .footer {
     text-align: center;
-    padding: clamp(32px, 10vw, 60px) clamp(16px, 5vw, 40px);
+    padding: clamp(40px, 10vw, 80px) clamp(16px, 5vw, 40px);
     background: linear-gradient(180deg,
             rgba(255, 254, 249, 0.8) 0%,
             rgba(255, 245, 236, 0.9) 100%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
 }
 
 .footer-text {
-    font-size: clamp(20px, 6vw, 32px);
-    font-weight: 600;
+    font-size: clamp(24px, 7vw, 36px);
+    font-weight: 700;
     color: #C71585;
     text-shadow: 0 2px 8px rgba(199, 21, 133, 0.2);
+    margin: 0;
+}
+
+.footer-divider {
+    width: 60px;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, #D4AF37, transparent);
+    border-radius: 2px;
+}
+
+.social-links {
+    display: flex;
+    gap: 20px;
+    margin-top: 8px;
+}
+
+.social-icon {
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: white;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    color: #555;
+    transition: all 0.3s ease;
+}
+
+.social-icon svg {
+    width: 24px;
+    height: 24px;
+}
+
+.social-icon.instagram:hover {
+    color: white;
+    background: radial-gradient(circle at 30% 107%, #fdf497 0%, #fdf497 5%, #fd5949 45%, #d6249f 60%, #285AEB 90%);
+    transform: translateY(-4px);
+    box-shadow: 0 8px 16px rgba(214, 36, 159, 0.3);
+}
+
+.social-icon.facebook:hover {
+    color: white;
+    background: #1877F2;
+    transform: translateY(-4px);
+    box-shadow: 0 8px 16px rgba(24, 119, 242, 0.3);
+}
+
+.dedication-note {
+    font-size: 14px;
+    color: #888;
+    margin-top: 24px;
+    line-height: 1.6;
+}
+
+.signature-name {
+    font-family: 'Great Vibes', cursive;
+    font-size: 20px;
+    color: #D4AF37;
+    display: block;
+    margin-top: 4px;
 }
 
 /* ========================================
@@ -750,4 +1679,64 @@ section {
     clip: rect(0, 0, 0, 0);
     white-space: nowrap;
     border-width: 0;
+}
+
+/* ========================================
+   PAGE CORNER DECORATIONS
+   ======================================== */
+.page-frame {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none;
+    z-index: 99;
+    overflow: hidden;
+}
+
+.corner-decoration {
+    position: absolute;
+    width: clamp(100px, 25vw, 200px);
+    height: clamp(100px, 25vw, 200px);
+    opacity: 0.8;
+    filter: drop-shadow(0 2px 4px rgba(212, 175, 55, 0.2));
+    transition: opacity 0.5s ease;
+}
+
+.corner-decoration svg {
+    width: 100%;
+    height: 100%;
+}
+
+.corner-decoration.top-left {
+    top: 0;
+    left: 0;
+}
+
+.corner-decoration.top-right {
+    top: 0;
+    right: 0;
+    transform: rotate(90deg);
+}
+
+.corner-decoration.bottom-left {
+    bottom: 0;
+    left: 0;
+    transform: rotate(-90deg);
+}
+
+.corner-decoration.bottom-right {
+    bottom: 0;
+    right: 0;
+    transform: rotate(180deg);
+}
+
+/* Hide or reduce opacity on very small screens if needed to prevent text blocking */
+@media (max-width: 360px) {
+    .corner-decoration {
+        opacity: 0.4;
+        width: 80px;
+        height: 80px;
+    }
 }

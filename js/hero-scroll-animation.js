@@ -189,6 +189,12 @@
         if (state.revealCanvas) {
             state.revealCanvas.style.filter = `grayscale(${grayscale}%)`;
             state.revealCanvas.style.opacity = canvasOpacity;
+
+            // FIX: Show cover image when canvas is visible (scrolled up)
+            // When opacity > 0.5, canvas should display the cover, not be transparent
+            if (canvasOpacity > 0.5) {
+                state.revealCanvas.style.display = 'block';
+            }
         }
 
         // Apply grayscale to hero-background
