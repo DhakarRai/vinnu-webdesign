@@ -1598,34 +1598,6 @@ section {
     box-shadow: 0 8px 16px rgba(24, 119, 242, 0.3);
 }
 
-.phone-contact {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-top: 16px;
-    color: #555;
-    transition: transform 0.3s ease;
-}
-
-.phone-contact:hover {
-    transform: scale(1.05);
-}
-
-.phone-contact svg {
-    width: 20px;
-    height: 20px;
-    color: #C71585;
-    /* Brand pink color */
-}
-
-.phone-contact a {
-    text-decoration: none;
-    color: inherit;
-    font-size: 16px;
-    font-weight: 600;
-    font-family: 'Noto Sans Telugu', sans-serif;
-}
-
 .dedication-note {
     font-size: 14px;
     color: #888;
