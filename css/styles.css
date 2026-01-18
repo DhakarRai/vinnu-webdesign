@@ -1546,6 +1546,13 @@ section {
     margin: 0;
 }
 
+.footer-logo {
+    width: clamp(80px, 15vw, 120px);
+    height: auto;
+    margin-bottom: 12px;
+    filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1));
+}
+
 .footer-divider {
     width: 60px;
     height: 3px;
